@@ -12,6 +12,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL; // ✅ use env
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -19,9 +21,9 @@ export default function Dashboard() {
       return;
     }
 
-    const fetchWithAuth = async (url, setter) => {
+    const fetchWithAuth = async (endpoint, setter) => {
       try {
-        const res = await fetch(url, {
+        const res = await fetch(`${BACKEND_URL}${endpoint}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -42,15 +44,15 @@ export default function Dashboard() {
     const run = async () => {
       setLoading(true);
       await Promise.all([
-        fetchWithAuth("http://localhost:5000/api/dashboard/metrics", setMetrics),
-        fetchWithAuth("http://localhost:5000/api/dashboard/orders", setOrders),
-        fetchWithAuth("http://localhost:5000/api/dashboard/top-customers", setTopCustomers),
+        fetchWithAuth("/api/dashboard/metrics", setMetrics),
+        fetchWithAuth("/api/dashboard/orders", setOrders),
+        fetchWithAuth("/api/dashboard/top-customers", setTopCustomers),
       ]);
       setLoading(false);
     };
 
     run();
-  }, [navigate]);
+  }, [navigate, BACKEND_URL]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -68,7 +70,6 @@ export default function Dashboard() {
         <p>Loading...</p>
       ) : (
         <>
-          {/* Metrics */}
           <section>
             <h2>Totals</h2>
             <p>Total Customers: {metrics.totalCustomers ?? 0}</p>
@@ -76,7 +77,6 @@ export default function Dashboard() {
             <p>Total Revenue: ${Number(metrics.totalRevenue ?? 0).toFixed(2)}</p>
           </section>
 
-          {/* Orders Line Chart */}
           <section style={{ marginTop: 20 }}>
             <h2>Revenue Over Time</h2>
             <div style={{ width: "100%", height: 300 }}>
@@ -99,13 +99,11 @@ export default function Dashboard() {
             </div>
           </section>
 
-          {/* Top Customers Table */}
           <section style={{ marginTop: 20 }}>
             <h2>Top Customers</h2>
             <CustomerTable customers={topCustomers} />
           </section>
 
-          {/* Top Customers Bar Chart */}
           <section style={{ marginTop: 20 }}>
             <h2>Top Customers - Bar Chart</h2>
             <TopCustomersChart customers={topCustomers} />
