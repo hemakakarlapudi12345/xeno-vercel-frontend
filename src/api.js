@@ -1,9 +1,17 @@
-const API_BASE_URL = process.env.REACT_APP_API_URL;
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
 
-export async function fetchCustomers() {
-  const response = await fetch(`${API_BASE_URL}/api/customers`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch customers");
-  }
-  return response.json();
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/" element={<Navigate to="/login" />} />
+      </Routes>
+    </Router>
+  );
 }
+
+export default App;
